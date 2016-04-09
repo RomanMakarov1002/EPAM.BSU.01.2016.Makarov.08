@@ -7,39 +7,55 @@ using System.Threading.Tasks;
 
 namespace Logic
 {
-    public class Matrix<T> 
+    public abstract class SquareAbsMatrix<T> 
     {
-        public T[,] _matrix { get; }
-        protected static Func<T, T, T> _plusFunc;
         private readonly Changing _change = new Changing();
-        public int Size => _matrix.Length;
+        public int Length { get; protected set; }
+        public T[] Matrix { get; protected set; }
+    
+        protected SquareAbsMatrix()
+        {
+            _change.Temp += Connect;
+        } 
 
-        public Matrix(T[,] array)
+        protected SquareAbsMatrix(T[] array) :this ()
         {
             if (array == null)
                 throw new ArgumentNullException();
-            _matrix = array;
-            Array.Copy(_matrix,_matrix,_matrix.Length);
-            _change.Temp += Connect;
-        }
+            Length = array.Length;
+            Matrix = new T[Length];
+            Array.Copy(array, Matrix, Length);
+        } 
 
-        public Matrix(T[,] array, Func<T, T, T> plusFunc) : this (array)
+        protected SquareAbsMatrix(T[,] array) : this()
         {
-            if (plusFunc == null)
+            if (array == null)
                 throw new ArgumentNullException();
-            _plusFunc = plusFunc;
-        }
+            if (array.GetLength(0) != array.GetLength(1))
+                throw new ArgumentException("Square matrix has the same amount of elements in both dimensions");
+            Length = array.Length;
+            Matrix = new T[Length];
+            for (int i = 0; i < array.GetLength(0); i++)
+                for (int j = 0; j < array.GetLength(1); j++)
+                    Matrix[i + j * array.GetLength(0)] = array[i, j];
+        }                
    
         public T this[int index1, int index2]
-        {
-            get { return _matrix[index1, index2]; }
+        {           
+            get
+            {
+                return GetValue(index1, index2);
+            }
             set
             {
-                _matrix[index1, index2] = value;
-                _change.OnChange(new CustomEvent(index1,index2));
+                SetValue(index1, index2, value);
+                _change.OnChange(new CustomEvent(index1, index2));
             }
         }
 
+        protected abstract T GetValue(int i, int j);
+        protected abstract void SetValue(int i, int j, T value);
+        
         protected virtual void Connect(object sender, CustomEvent e)
         {
             Console.WriteLine("{0} Element changed at {1},{2}",this ,e.Index1,e.Index2);

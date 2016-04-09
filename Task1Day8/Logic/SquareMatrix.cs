@@ -6,17 +6,20 @@ using System.Threading.Tasks;
 
 namespace Logic
 {
-    public class SquareMatrix<T> : Matrix<T>
-    {
-        public SquareMatrix(T[,] array) : base (array)
-        {
-            if (_matrix.GetLength(0) != _matrix.GetLength(1))
-                throw new ArgumentException("Square Matrix must have same amount of rows and columns");
+    public class SquareMatrix<T> : SquareAbsMatrix<T>
+    {              
+        public SquareMatrix(T[,] array) :base (array) { } 
+        
+        public SquareMatrix(T[] array) : base (array) { }       
+        
+        protected override T GetValue(int i, int j)
+        {           
+            return Matrix[i + j*(int)Math.Sqrt(Length)];
         }
 
-        public SquareMatrix(T[,] array, Func<T, T, T> plusFunc) : this(array)
+        protected override void SetValue(int i, int j, T value)
         {
-            _plusFunc = plusFunc;
-        }       
+            Matrix[i + j* (int)Math.Sqrt(Length)] = value;
+        }
     }
 }

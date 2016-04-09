@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Logic
 {
-    public class SymmetricMatrix<T> : SquareMatrix<T>
-    {
-        public SymmetricMatrix(T[,] array) : base(array)
-        {
-            for (int i=0; i<_matrix.GetLength(0); i++)
-                for (int j=0; j<_matrix.GetLength(1); j++)
-                    if (!(_matrix[i,j].Equals(_matrix[j,i])))
-                            throw new ArgumentException("Symmetric matrix must have symmetric arguments across main diagonal");
-        }
+    public class SymmetricMatrix<T> : SquareAbsMatrix<T>
+    {             
+        public SymmetricMatrix(T[,] array) : base (array) { }
 
-        public SymmetricMatrix(T[,] array, Func<T, T, T> plusFunc) : this(array)
+        public SymmetricMatrix(T[] array) :base (array) { }
+             
+        protected override T GetValue(int i, int j)
         {
-            _plusFunc = plusFunc;
+            return Matrix[i + j*(int) Math.Sqrt(Length)];         
+        }
+        
+        protected override void SetValue(int i, int j, T value)
+        {            
+            Matrix[i + j * (int)Math.Sqrt(Length)] = value;
+            Matrix[j + i * (int)Math.Sqrt(Length)] = value;
         }
     }
 }

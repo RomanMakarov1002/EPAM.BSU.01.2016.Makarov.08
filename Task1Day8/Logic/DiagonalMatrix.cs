@@ -6,22 +6,24 @@ using System.Threading.Tasks;
 
 namespace Logic
 {
-    public class DiagonalMatrix<T> :SquareMatrix<T>
-    {
-        public DiagonalMatrix(T[,] array) : base(array)
+    public class DiagonalMatrix<T> :SquareAbsMatrix<T>
+    {      
+        public DiagonalMatrix(T[,] array) : base (array) { } 
+      
+        public DiagonalMatrix(T[] array) : base(array) { }
+       
+        protected override T GetValue(int i, int j)
         {
-            for (int i = 0; i < _matrix.GetLength(0); i++)
-                for (int j = 0; j < _matrix.GetLength(1); j++)
-                    if (i!=j)
-                        if (!(_matrix[i,j].Equals(default (T))))
-                            throw new ArgumentException("Diagonal matrix must have default elements besides diagonal");
-                            
+            return i == j ? Matrix[i + j * (int)Math.Sqrt(Length)] : default(T);
         }
 
-        public DiagonalMatrix(T[,] array, Func<T, T, T> plusFunc) : this(array)
+        protected override void SetValue(int i, int j, T value)
         {
-            _plusFunc = plusFunc;
+            if (i == j)
+                Matrix[i + j * (int)Math.Sqrt(Length)] = value;
+            else
+                if (!(value.Equals(default(T))))
+                    throw new ArgumentException();
         }
-
     }
 }
